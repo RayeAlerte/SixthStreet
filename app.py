@@ -1,5 +1,12 @@
 #! /usr/bin/env python3
-"""CDK app entrypoint: instantiates the ``SixthStreet`` stack (see ``infra/cdk_stack.py``)."""
+"""
+AWS CDK App "Main" Function/Entrypoint:
+
+This script:
+- instantiates the ``SixthStreet`` stack 
+(see ``infra/cdk_stack.py``)
+- ends with .synth() to convert to CloudFormation templates
+"""
 import os
 import aws_cdk as cdk
 from infra.cdk_stack import SixthStreet

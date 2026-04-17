@@ -1,8 +1,10 @@
-"""CDK stack: S3 bucket, SSL-only bucket policy, and an S3-triggered Lambda.
+"""
+CDK stack: An S3 bucket, SSL-only bucket policy, and S3-triggered Lambda.
 
 The assessment requires infrastructure that reacts when objects are created in S3.
+
 This stack wires OBJECT_CREATED notifications to a Python handler that reads the
-uploaded object and parses its first line (see ``lambda_src/processor.py``).
+uploaded object and parses its first line (see lambda_src/processor.py).
 """
 from aws_cdk import (
     Stack,
@@ -47,7 +49,7 @@ class SixthStreet(Stack):
             runtime=_lambda.Runtime.PYTHON_3_14,
             handler="processor.handler",
             code=_lambda.Code.from_asset("lambda_src"),
-            # Exposes bucket name for logging, tests, or future handler logic 
+            # Expose bucket name for logging, tests, or future handler logic 
             # The runtime event also includes the bucket name for each invocation
             environment={
                 "BUCKET_NAME": data_bucket.bucket_name
