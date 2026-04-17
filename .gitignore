@@ -1,6 +1,4 @@
 .DS_Store
 /cdk.out
-infra/__pycache__/
 **/__pycache__/
 .venv/
-.github/workflows/deploy.yml
