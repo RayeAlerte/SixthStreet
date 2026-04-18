@@ -2,10 +2,9 @@ import time
 import boto3
 import pytest
 
-@pytest.mark.integration
 def test_live_cloud_processing():
     """
-    WARNING: This test interacts with your live AWS environment.
+    WARNING: This test interacts with the live AWS environment.
     It requires active AWS credentials and a deployed Dev stack.
     """
     cfn = boto3.client('cloudformation')
@@ -14,7 +13,7 @@ def test_live_cloud_processing():
     
     stack_name = "SixthStreetAssessment-Dev"
     
-    # 1. Find the live S3 Bucket and Lambda physical IDs
+    # 1. Fetch stack resources from CloudFormation
     try:
         response = cfn.list_stack_resources(StackName=stack_name)
     except Exception as e:
@@ -22,21 +21,21 @@ def test_live_cloud_processing():
 
     resources = response['StackResourceSummaries']
     
+    # 2. Dynamically extract BOTH the Bucket and the explicit Log Group
     try:
         bucket_name = next(r['PhysicalResourceId'] for r in resources if r['ResourceType'] == 'AWS::S3::Bucket')
-        lambda_name = next(r['PhysicalResourceId'] for r in resources if r['ResourceType'] == 'AWS::Lambda::Function' and 'FileProcessor' in r['LogicalResourceId'])
+        log_group_name = next(r['PhysicalResourceId'] for r in resources if r['ResourceType'] == 'AWS::Logs::LogGroup')
     except StopIteration:
-        pytest.fail("Could not find the expected S3 Bucket or Lambda Function in the deployed stack.")
+        pytest.fail("Could not find the expected S3 Bucket or Log Group in the deployed stack.")
     
-    log_group_name = f"/aws/lambda/{lambda_name}"
     test_file_key = f"integration-test-{int(time.time())}.txt"
     test_content = b"INTEGRATION_TEST_SUCCESS"
 
-    # 2. Upload a file to the live S3 bucket
+    # 3. Upload a file to the live S3 bucket
     s3.put_object(Bucket=bucket_name, Key=test_file_key, Body=test_content)
     
-    # 3. Polling Mechanism for CloudWatch Logs
-    max_retries = 6
+    # 4. Polling Mechanism for CloudWatch Logs
+    max_retries = 5
     wait_seconds = 10
     logs_found = False
     
@@ -46,8 +45,6 @@ def test_live_cloud_processing():
         for attempt in range(max_retries):
             time.sleep(wait_seconds)
             
-            # Since we upgraded to Powertools (JSON logs), the text will still be found
-            # inside the raw JSON string payload in CloudWatch.
             log_events = logs.filter_log_events(
                 logGroupName=log_group_name,
                 filterPattern="INTEGRATION_TEST_SUCCESS"
@@ -61,8 +58,8 @@ def test_live_cloud_processing():
             print(f"Attempt {attempt + 1}/{max_retries}: Logs not yet ingested. Waiting...")
             
     finally:
-        # 4. Cleanup: Always delete the test file, even if the assertion fails
+        # 5. Cleanup
         s3.delete_object(Bucket=bucket_name, Key=test_file_key)
         
-    # 5. Final Assertion
-    assert logs_found, "Lambda failed to process the S3 file, or CloudWatch log ingestion timed out after 60 seconds."
+    # 6. Final Assertion
+    assert logs_found, "Lambda failed to process the S3 file, or CloudWatch log ingestion timed out."
