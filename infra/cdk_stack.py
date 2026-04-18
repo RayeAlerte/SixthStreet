@@ -1,6 +1,6 @@
 """
 Defines the SixthStreet CDK stack for both environments, including a hardened S3 bucket, a Python Lambda processor, and S3-to-Lambda event wiring.
-The stack toggles retention and compliance controls via the strict_compliance context while preserving secure defaults.
+The stack toggles retention and compliance controls via the is_strict_compliance constructor flag while preserving secure defaults.
 """
 from aws_cdk import (
     Stack,
@@ -16,11 +16,10 @@ from aws_cdk import (
 from constructs import Construct
 
 class SixthStreet(Stack):
-    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
+    def __init__(self, scope: Construct, construct_id: str, is_strict_compliance: bool = False, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
         # Check for CDK context flag to select for removal, retention, autodelete
-        is_strict_compliance = self.node.try_get_context("strict_compliance") == "true"
         compliance_removal_policy = RemovalPolicy.RETAIN if is_strict_compliance else RemovalPolicy.DESTROY
         compliance_auto_delete = False if is_strict_compliance else True
         compliance_log_retention = logs.RetentionDays.INFINITE if is_strict_compliance else logs.RetentionDays.ONE_MONTH

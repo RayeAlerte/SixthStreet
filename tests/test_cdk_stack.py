@@ -12,9 +12,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'i
 from cdk_stack import SixthStreet
 
 # Generate the template once for all tests to use
-def get_template():
+def get_template(is_strict_compliance: bool = False):
     app = cdk.App()
-    stack = SixthStreet(app, "TestStack")
+    stack = SixthStreet(app, "TestStack", is_strict_compliance=is_strict_compliance)
     return Template.from_stack(stack)
 
 def test_s3_bucket_created_with_secure_defaults():
@@ -57,10 +57,7 @@ def test_s3_bucket_policy_enforces_ssl():
     })
 
 def test_strict_compliance_enables_object_lock():
-    # Instantiate the app WITH the context flag turned on
-    app = cdk.App(context={"strict_compliance": "true"})
-    stack = SixthStreet(app, "TestStack")
-    template = Template.from_stack(stack)
+    template = get_template(is_strict_compliance=True)
 
     # Assert that the S3 Bucket now contains the WORM/Object Lock property
     template.has_resource_properties("AWS::S3::Bucket", {
@@ -90,10 +87,8 @@ def test_log_group_retention_dev():
     })
 
 def test_log_group_retention_prod():
-    app = cdk.App(context={"strict_compliance": "true"})
     # Test Prod configuration (Strict Compliance = True)
-    stack = SixthStreet(app, "TestStack")
-    template = Template.from_stack(stack)
+    template = get_template(is_strict_compliance=True)
 
     # 'INFINITE' retention means the RetentionInDays property is entirely omitted.
     # Assert that a Log Group exists, but use Match.absent() to ensure it never expires.

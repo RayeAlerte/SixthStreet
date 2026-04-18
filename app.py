@@ -23,14 +23,16 @@ aws_env = cdk.Environment(
 SixthStreet(
     app, 
     "SixthStreetAssessment-Dev", 
-    env=aws_env
+    env=aws_env,
+    is_strict_compliance=False
 )
 
 # Production Environment (Live workload)
 SixthStreet(
     app, 
     "SixthStreetAssessment-Prod", 
-    env=aws_env
+    env=aws_env,
+    is_strict_compliance=True
 )
 
 app.synth()
