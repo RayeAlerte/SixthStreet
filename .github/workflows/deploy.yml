@@ -6,7 +6,7 @@ on:
     paths-ignore:
       - 'README.md'
       - '.gitignore'
-      - 'architecture.png'  # Good to ignore your diagram too!
+      - 'architecture.png'
   pull_request:
     branches: [main, dev]
     paths-ignore:
