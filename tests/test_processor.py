@@ -8,6 +8,14 @@ from moto import mock_aws
 # Set up to import lambda_src/processor
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'lambda_src')))
 
+# Create a Mock Context for Lambda Powertools
+class MockContext:
+    def __init__(self):
+        self.aws_request_id = "test-request-id-12345"
+        self.function_name = "test-processor-function"
+        self.memory_limit_in_mb = 128
+        self.invoked_function_arn = "arn:aws:lambda:us-east-1:123456789012:function:test-processor-function"
+
 # Setup Mock AWS Environment
 @pytest.fixture
 def aws_credentials():
@@ -49,7 +57,8 @@ def test_lambda_handler(s3_setup):
     }
 
     # Execute the handler
-    response = processor.handler(mock_event, None)
+    context = MockContext()
+    response = processor.handler(mock_event, context)
 
     # Assertions - Validate output
     assert response["statusCode"] == 200

@@ -53,6 +53,17 @@ def test_s3_bucket_policy_enforces_ssl():
         }
     })
 
+def test_strict_compliance_enables_object_lock():
+    # Instantiate the app WITH the context flag turned on
+    app = cdk.App(context={"strict_compliance": "true"})
+    stack = SixthStreet(app, "TestStack")
+    template = Template.from_stack(stack)
+
+    # Assert that the S3 Bucket now contains the WORM/Object Lock property
+    template.has_resource_properties("AWS::S3::Bucket", {
+        "ObjectLockEnabled": True
+    })
+
 def test_lambda_function_created():
     template = get_template()
 
@@ -65,3 +76,4 @@ def test_lambda_function_created():
         }
     })
     assert len(matches) == 1
+
