@@ -12,10 +12,25 @@ import aws_cdk as cdk
 from infra.cdk_stack import SixthStreet
 
 app = cdk.App()
-SixthStreet(app,"SixthStreetAssessment", 
-            env=cdk.Environment(
-            account=os.environ.get("CDK_DEFAULT_ACCOUNT"), 
-            region=os.environ.get("CDK_DEFAULT_REGION")
-        )
-    )
+
+# Shared environment configuration pulling from terminal/pipeline
+aws_env = cdk.Environment(
+    account=os.environ.get("CDK_DEFAULT_ACCOUNT"), 
+    region=os.environ.get("CDK_DEFAULT_REGION")
+)
+
+# Development Environment (Clean testing pipeline target)
+SixthStreet(
+    app, 
+    "SixthStreetAssessment-Dev", 
+    env=aws_env
+)
+
+# Production Environment (Live workload)
+SixthStreet(
+    app, 
+    "SixthStreetAssessment-Prod", 
+    env=aws_env
+)
+
 app.synth()
