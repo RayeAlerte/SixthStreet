@@ -26,16 +26,35 @@ class SixthStreet(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        # Create the S3 Bucket
-        data_bucket = s3.Bucket(
-            self, "DataProcessingBucket",
-            versioned=True,
-            # Destroy the bucket on stack deletion for easy cleanup
-            removal_policy=RemovalPolicy.DESTROY, 
-            auto_delete_objects=True,
-            block_public_access=s3.BlockPublicAccess.BLOCK_ALL
-        )
+        # 1. Check for a single CDK context flag (passed via terminal)
+        # Defaults to False if not provided
+        is_strict_compliance = self.node.try_get_context("strict_compliance") == "true"
 
+        # 2. Define your baseline properties for the bucket
+        bucket_props = {
+            "versioned": True,
+            "removal_policy": RemovalPolicy.DESTROY,
+            "auto_delete_objects": True,
+            "block_public_access": s3.BlockPublicAccess.BLOCK_ALL,
+            "enforce_ssl": True # Built-in CDK prop to replace the manual IAM policy
+        }
+
+        # 3. Define stricter compliance properties
+        if is_strict_compliance:
+            compliance_props = {
+                "object_lock_enabled": True, # WORM storage
+                "encryption": s3.BucketEncryption.KMS_MANAGED, # Auditable encryption
+            }
+            # Merge compliance props into the baseline using Python dict unpacking
+            bucket_props = {**bucket_props, **compliance_props}
+
+        # 4. Instantiate the bucket using the dynamically built dictionary
+        data_bucket = s3.Bucket(
+            self, 
+            "DataProcessingBucket",
+            **bucket_props
+        )
+        '''
         # Create Explicit S3 Bucket Policy
         # Best practice: Deny non-SSL requests to the bucket
         bucket_policy = iam.PolicyStatement(
@@ -48,7 +67,7 @@ class SixthStreet(Stack):
             }
         )
         data_bucket.add_to_resource_policy(bucket_policy)
-
+        '''
         # Create the Lambda Function
         processor_lambda = _lambda.Function(
             self, "FileProcessorLambda",
