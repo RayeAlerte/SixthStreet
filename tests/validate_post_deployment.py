@@ -1,3 +1,7 @@
+"""
+Runs a live post-deployment integration check against the deployed Dev stack.
+The test uploads a file to S3 and asserts Lambda processing by detecting the expected value in CloudWatch Logs.
+"""
 import time
 import boto3
 import pytest
@@ -13,7 +17,7 @@ def test_live_cloud_processing():
     
     stack_name = "SixthStreetAssessment-Dev"
     
-    # 1. Fetch stack resources from CloudFormation
+    # Fetch stack resources from CloudFormation
     try:
         response = cfn.list_stack_resources(StackName=stack_name)
     except Exception as e:
@@ -21,7 +25,7 @@ def test_live_cloud_processing():
 
     resources = response['StackResourceSummaries']
     
-    # 2. Dynamically extract BOTH the Bucket and the explicit Log Group
+    # Dynamically extract BOTH the Bucket and the explicit Log Group
     try:
         bucket_name = next(r['PhysicalResourceId'] for r in resources if r['ResourceType'] == 'AWS::S3::Bucket')
         log_group_name = next(r['PhysicalResourceId'] for r in resources if r['ResourceType'] == 'AWS::Logs::LogGroup')
@@ -31,10 +35,10 @@ def test_live_cloud_processing():
     test_file_key = f"integration-test-{int(time.time())}.txt"
     test_content = b"INTEGRATION_TEST_SUCCESS"
 
-    # 3. Upload a file to the live S3 bucket
+    # Upload a file to the live S3 bucket
     s3.put_object(Bucket=bucket_name, Key=test_file_key, Body=test_content)
     
-    # 4. Polling Mechanism for CloudWatch Logs
+    # Polling Mechanism for CloudWatch Logs
     max_retries = 5
     wait_seconds = 10
     logs_found = False
@@ -58,8 +62,8 @@ def test_live_cloud_processing():
             print(f"Attempt {attempt + 1}/{max_retries}: Logs not yet ingested. Waiting...")
             
     finally:
-        # 5. Cleanup
+        # Cleanup
         s3.delete_object(Bucket=bucket_name, Key=test_file_key)
         
-    # 6. Final Assertion
+    # Final Assertion
     assert logs_found, "Lambda failed to process the S3 file, or CloudWatch log ingestion timed out."

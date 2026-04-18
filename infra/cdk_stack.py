@@ -1,16 +1,6 @@
 """
-CDK stack: An S3 bucket, SSL-only bucket policy, and S3-triggered Lambda.
-The assessment requires infrastructure that reacts when objects are created in S3.
-
-This script:
-- creates a new S3 bucket
-- defines and assigns the S3 bucket policy (rejects non-ssl)
-- creates a lambda function using processor.py as a handler
-- gives the lambda read permission into the bucket
-- sets up S3 OBJECT_CREATED notifications to be processed by our lambda handler code
-
-The stack wires OBJECT_CREATED notifications to a Python handler that reads the
-uploaded object and parses its first line (see lambda_src/processor.py).
+Defines the SixthStreet CDK stack for both environments, including a hardened S3 bucket, a Python Lambda processor, and S3-to-Lambda event wiring.
+The stack toggles retention and compliance controls via the strict_compliance context while preserving secure defaults.
 """
 from aws_cdk import (
     Stack,

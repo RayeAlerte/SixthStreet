@@ -1,3 +1,7 @@
+"""
+Tests Lambda processing behavior against mocked AWS services using moto.
+The suite verifies the handler reads S3 content and returns only the expected parsed first line.
+"""
 import os
 import sys
 import json

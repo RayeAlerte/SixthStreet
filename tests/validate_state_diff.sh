@@ -1,4 +1,6 @@
 #!/bin/bash
+# Compares local CDK output with deployed AWS resources before deployment.
+# The script fails fast when drift or pending infra changes are detected.
 
 echo "Starting Step 2: Validating local CDK state against AWS environment..."
 

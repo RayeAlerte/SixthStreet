@@ -1,9 +1,13 @@
+"""
+Validates the synthesized CloudFormation template for the SixthStreet stack.
+These tests confirm security controls, Lambda wiring, and environment-specific compliance behavior.
+"""
 import os
 import sys
 import aws_cdk as cdk
 from aws_cdk.assertions import Template, Match
 
-# Import infra / stack libraries
+# Set up to import infra / stack libraries
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'infra')))
 from cdk_stack import SixthStreet
 

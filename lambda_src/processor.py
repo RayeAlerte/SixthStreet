@@ -1,10 +1,6 @@
 """
-This script sets up a lambda handler for S3 object-created events.
-
-AWS invokes this with an event containing bucket and key; 
-we fetch the object, take the first line of the file body, and log it.
-
-The S3 notification (Object created) is set up at the end of our infra/cdk_stack.py code.
+Implements the Lambda handler invoked by S3 object-created notifications.
+The handler reads the uploaded object, logs processing details, and returns the first parsed line when content exists.
 """
 import urllib.parse
 import boto3
