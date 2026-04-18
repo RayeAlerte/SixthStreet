@@ -1,11 +1,11 @@
 #! /usr/bin/env python3
 """
 AWS CDK App "Main" Function/Entrypoint:
+This script instantiates the ``SixthStreet`` Dev + Production S3 stack. (see ``infra/cdk_stack.py``)
 
-This script:
-- instantiates the ``SixthStreet`` stack 
-(see ``infra/cdk_stack.py``)
-- ends with .synth() to convert to CloudFormation templates
+It reads account and region from standard CDK environment variables, applies
+branch-aligned compliance defaults per stack (Dev relaxed, Prod strict), and
+then synthesizes both stacks into deployable CloudFormation templates.
 """
 import os
 import aws_cdk as cdk
