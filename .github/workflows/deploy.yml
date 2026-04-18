@@ -72,19 +72,17 @@ jobs:
         run: |
           if [ "${GITHUB_REF_NAME}" = "main" ]; then
             echo "stack_name=SixthStreetAssessment-Prod" >> "${GITHUB_OUTPUT}"
-            echo "strict_compliance=true" >> "${GITHUB_OUTPUT}"
             echo "run_post_deploy=false" >> "${GITHUB_OUTPUT}"
           else
             echo "stack_name=SixthStreetAssessment-Dev" >> "${GITHUB_OUTPUT}"
-            echo "strict_compliance=false" >> "${GITHUB_OUTPUT}"
             echo "run_post_deploy=true" >> "${GITHUB_OUTPUT}"
           fi
 
       - name: Preview CDK diff
-        run: cdk diff ${{ steps.resolve-target.outputs.stack_name }} -c strict_compliance=${{ steps.resolve-target.outputs.strict_compliance }}
+        run: cdk diff ${{ steps.resolve-target.outputs.stack_name }}
 
       - name: Deploy selected stack
-        run: cdk deploy ${{ steps.resolve-target.outputs.stack_name }} --require-approval never -c strict_compliance=${{ steps.resolve-target.outputs.strict_compliance }}
+        run: cdk deploy ${{ steps.resolve-target.outputs.stack_name }} --require-approval never
 
   post_deploy_validation:
     name: Validate Deployed Runtime (Dev/Test)
