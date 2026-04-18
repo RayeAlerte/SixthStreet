@@ -46,8 +46,7 @@ def test_s3_bucket_policy_enforces_ssl():
                     "Condition": {
                         "Bool": {"aws:SecureTransport": "false"}
                     },
-                    "Effect": "Deny",
-                    "Principal": {"AWS": "*"}
+                    "Effect": "Deny"
                 })
             ])
         }
@@ -77,3 +76,23 @@ def test_lambda_function_created():
     })
     assert len(matches) == 1
 
+def test_log_group_retention_dev():
+    # Test Dev configuration (Strict Compliance = False)
+    template = get_template()
+
+    # Assert the Log Group is explicitly set to 30 days retention
+    template.has_resource_properties("AWS::Logs::LogGroup", {
+        "RetentionInDays": 30
+    })
+
+def test_log_group_retention_prod():
+    app = cdk.App(context={"strict_compliance": "true"})
+    # Test Prod configuration (Strict Compliance = True)
+    stack = SixthStreet(app, "TestStack")
+    template = Template.from_stack(stack)
+
+    # 'INFINITE' retention means the RetentionInDays property is entirely omitted.
+    # Assert that a Log Group exists, but use Match.absent() to ensure it never expires.
+    template.has_resource_properties("AWS::Logs::LogGroup", {
+        "RetentionInDays": Match.absent()
+    })

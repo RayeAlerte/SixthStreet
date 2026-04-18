@@ -15,9 +15,12 @@ uploaded object and parses its first line (see lambda_src/processor.py).
 from aws_cdk import (
     Stack,
     RemovalPolicy,
+    Duration,
+    Aws,
     aws_s3 as s3,
     aws_iam as iam,
     aws_lambda as _lambda,
+    aws_logs as logs,
     aws_s3_notifications as s3_notifications,
 )
 from constructs import Construct
@@ -26,20 +29,21 @@ class SixthStreet(Stack):
     def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
         super().__init__(scope, construct_id, **kwargs)
 
-        # 1. Check for a single CDK context flag (passed via terminal)
-        # Defaults to False if not provided
+        # Check for CDK context flag to select for removal, retention, autodelete
         is_strict_compliance = self.node.try_get_context("strict_compliance") == "true"
+        compliance_removal_policy = RemovalPolicy.RETAIN if is_strict_compliance else RemovalPolicy.DESTROY
+        compliance_auto_delete = False if is_strict_compliance else True
+        compliance_log_retention = logs.RetentionDays.INFINITE if is_strict_compliance else logs.RetentionDays.ONE_MONTH
 
-        # 2. Define your baseline properties for the bucket
+        # Define your baseline properties for ALL buckets
         bucket_props = {
             "versioned": True,
-            "removal_policy": RemovalPolicy.DESTROY,
-            "auto_delete_objects": True,
+            "removal_policy": compliance_removal_policy,
+            "auto_delete_objects": compliance_auto_delete,
             "block_public_access": s3.BlockPublicAccess.BLOCK_ALL,
-            "enforce_ssl": True # Built-in CDK prop to replace the manual IAM policy
         }
 
-        # 3. Define stricter compliance properties
+        # Define properties for high-compliance buckets only
         if is_strict_compliance:
             compliance_props = {
                 "object_lock_enabled": True, # WORM storage
@@ -48,15 +52,14 @@ class SixthStreet(Stack):
             # Merge compliance props into the baseline using Python dict unpacking
             bucket_props = {**bucket_props, **compliance_props}
 
-        # 4. Instantiate the bucket using the dynamically built dictionary
+        # Instantiate the bucket using the property dictionary
         data_bucket = s3.Bucket(
             self, 
             "DataProcessingBucket",
             **bucket_props
         )
-        '''
-        # Create Explicit S3 Bucket Policy
-        # Best practice: Deny non-SSL requests to the bucket
+
+        # Apply explicit SSL required bucket policy
         bucket_policy = iam.PolicyStatement(
             effect=iam.Effect.DENY,
             actions=["s3:*"],
@@ -67,15 +70,29 @@ class SixthStreet(Stack):
             }
         )
         data_bucket.add_to_resource_policy(bucket_policy)
-        '''
-        # Create the Lambda Function
+        
+        # Fetch the official AWS Powertools V3 Layer for Python 3.14 / JSON Logging in Lambda
+        powertools_layer = _lambda.LayerVersion.from_layer_version_arn(
+            self, id="PowertoolsLayer",
+            layer_version_arn=f"arn:aws:lambda:{Aws.REGION}:017000801446:layer:AWSLambdaPowertoolsPythonV3-python314-x86_64:27"
+        )
+
+        # Define the Log Group
+        processor_log_group = logs.LogGroup(
+            self, "ProcessorLogGroup",
+            retention=compliance_log_retention, # Base retention on strict_compliance flag
+            removal_policy=compliance_removal_policy # Ensures 'cdk destroy' deletes the logs in Dev (Not Prod)
+        )
+
+        # Create the Lambda Function with logging, dependencies, code
         processor_lambda = _lambda.Function(
             self, "FileProcessorLambda",
             runtime=_lambda.Runtime.PYTHON_3_14,
             handler="processor.handler",
             code=_lambda.Code.from_asset("lambda_src"),
-            # Expose bucket name for logging, tests, or future handler logic 
-            # The runtime event also includes the bucket name for each invocation
+            timeout=Duration.seconds(10), # Helps cold start issues
+            log_group=processor_log_group, # Name of the lambda log group
+            layers=[powertools_layer], # Binds Powertools library
             environment={
                 "BUCKET_NAME": data_bucket.bucket_name
             }
