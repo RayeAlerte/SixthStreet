@@ -135,7 +135,7 @@ If you need to deploy manually from your terminal (not recommended), execute the
 To test the S3 bucket trigger and lambda function manually:
 1. Navigate to the AWS Console -> S3.
 2. Upload a `.txt` file containing a single line of text to the newly created bucket.
-3. Navigate to CloudWatch -> Log Groups -> `/aws/lambda/<YourLambdaFunctionName>`.
+3. Navigate to CloudWatch -> Log Groups -> `/aws/lambda/<SixthStreetAssessment-ENV-ProcessorLogGroup>`.
 4. Verify the parsed single line is successfully printed in the logs.
 
 **To destroy all resources and prevent billing, run:**
