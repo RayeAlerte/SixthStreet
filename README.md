@@ -96,7 +96,7 @@ This repository follows a multi-environment promotion strategy:
 
 ### GitHub Repository Setup
 
-To fully enable the automated pipeline and secure your infrastructure, you must configure the following settings directly in the GitHub UI:
+To enable the automated pipeline and secure deployments, configure the following settings directly in the GitHub UI:
 
 **Configure AWS Secrets**
 
