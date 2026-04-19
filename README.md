@@ -9,7 +9,7 @@ This repository contains an AWS CDK application written in Python that provision
 * **Infrastructure as Code:** Fully modeled in AWS CDK (Python).
 * **Least Privilege:** The Lambda function only possesses read permissions for the specific S3 bucket it is subscribed to.
 * **Universal S3 Bucket Policies:** Explicit bucket policies block all public access and enforce secure transport (SSL/TLS) for all operations.
-* **Dev + Prod Deployment Targets:** Two environments: SixthStreetAssessment-Dev (relaxed compliance) and SixthStreetAssessment-Prod (strict compliance).
+* **Dev + Prod Deployment Targets:** SixthStreetAssessment-Dev (relaxed compliance) and SixthStreetAssessment-Prod (strict compliance).
     - Strict Compliance Policies (Production):
         - Enable Customer Managed Keys (SSE-KMS Encryption) for Auditing
         - Retain Buckets and Log Groups after stack deletion
@@ -88,9 +88,11 @@ When code is pushed to the `main` or `dev` branches (or a Pull Request is opened
 ### Deployment Strategy (Dev to Prod)
 This repository follows a multi-environment promotion strategy:
 
-1. **Development (`dev` branch):** All new features, infrastructure changes, and standard bug fixes must be committed to the `dev` branch. Pushing to `dev` automatically updates the isolated Sandbox stack in AWS for testing.
-2. **Production Promotion (`main` branch):** Direct pushes to `main` should be restricted. To deploy to Production, open a **Pull Request** from `dev` to `main`. Once the automated tests pass and the PR is merged, the pipeline provisions the highly compliant `SixthStreetAssessment-Prod` stack.
-3. **Emergency Hotfixes:** For critical production bugs, create a temporary branch (e.g., `hotfix/issue-name`) directly off `main`. Open a PR against `main` for an immediate, tested deployment. Once deployed, merge `main` back into `dev` to keep environments synchronized.
+**Development (`dev` branch):** All new features, infrastructure changes, and standard bug fixes must be committed to the `dev` branch. Pushing to `dev` automatically updates the isolated Sandbox stack in AWS for testing.
+
+**Production Promotion (`main` branch):** Direct pushes to `main` should be restricted. To deploy to Production, open a **Pull Request** from `dev` to `main`. Once the automated tests pass and the PR is merged, the pipeline provisions the highly compliant `SixthStreetAssessment-Prod` stack.
+
+**Emergency Hotfixes:** For critical production bugs, create a temporary branch (e.g., `hotfix/issue-name`) directly off `main`. Open a PR against `main` for an immediate, tested deployment. Once deployed, merge `main` back into `dev` to keep environments synchronized.
 
 ### GitHub Repository Setup
 
