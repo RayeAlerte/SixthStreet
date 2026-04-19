@@ -18,7 +18,7 @@ This repository contains an AWS CDK application written in Python that provision
         - Delete Buckets and Log Groups after stack deletion (`RemovalPolicy.DESTROY` and `auto_delete_objects=True`)
         - Keep CloudWatch logs for 30 days
 * **Structured Logging**: Uses Lambda Powertools to support JSON formatted logging to "ProcessorLogGroup".
-* **Automated Cleanup:** The S3 bucket is configured to ensure the environments are cleanly spun down without orphaned resources.
+* **Automated Cleanup:** Dev environment S3 bucket is configured to ensure the environments are cleanly spun down without orphaned resources.
 
 ## Prerequisites
 * Python 3.14+
@@ -40,8 +40,8 @@ This repository contains an AWS CDK application written in Python that provision
 * Requirements (Development):
     - Requirements-dev.txt contains additional libraries used to perform tests against our AWS stack.
     - This includes:
-        moto[s3] - generates mock AWS services,
-        pytest - creates Python tests.
+        moto[s3],
+        pytest.
 
 ## Preview Stack and Run Tests Locally
 
@@ -50,7 +50,8 @@ This project utilizes a three-step testing pipeline to validate application logi
 1. **Clone the repository and set up a virtual environment:**
 
         python3 -m venv .venv
-        source .venv/bin/activate       # Windows: .venv\Scripts\activate
+        # Unix: source .venv/bin/activate      
+        # Windows: .venv\Scripts\activate
 
 2. **Install dependencies:**
 
@@ -60,8 +61,8 @@ This project utilizes a three-step testing pipeline to validate application logi
 
 3. **Bootstrap the CDK environment:**
         
-       Run once per account/region before your first deployment:
-            cdk bootstrap
+        Run once per account/region before your first deployment:
+        cdk bootstrap
 
 4. **Run the Testing Pipeline:**
    * **Step 0 & 1 (Local Unit Tests):** Validates the Lambda parsing logic using `moto` to mock S3, and utilizes the CDK Assertions library to verify the generated CloudFormation template enforces strict security policies.
@@ -70,7 +71,7 @@ This project utilizes a three-step testing pipeline to validate application logi
 
    * **Step 2 (Cloud State Validation):** Compares the local CDK code against the current state of your AWS environment to detect drift and preview IAM changes before deployment.
 
-            chmod +x tests/validate_state_diff.sh       # Run once
+            chmod +x tests/validate_state_diff.sh
             ./tests/validate_state_diff.sh
 
 ## CI/CD Deployment Workflow
@@ -80,12 +81,12 @@ Automated deployments are handled via a GitHub Actions workflow defined in `.git
 ### Pipeline Process
 When code is pushed to the `main` or `dev` branches (or a Pull Request is opened), the workflow executes the following sequence:
 
-1. **Cost Optimization:** If a commit exclusively modifies documentation (e.g., `README.md`, `.gitignore`, or architecture diagrams), the pipeline safely skips execution to save compute time.
-2. **Pre-Deploy Tests:** Sets up the Python and Node.js environments, installs dependencies, and executes the local `pytest` suite (`test_processor.py` and `test_cdk_stack.py`). **Deployments are strictly blocked if these tests fail.**
-3. **Dynamic Resolution & Deploy:** If tests pass on a `push` event, the workflow authenticates with AWS using repository secrets and dynamically targets a stack:
+1. Skip execution if a commit exclusively modifies documentation (e.g., `README.md`, `.gitignore`, or architecture diagrams).
+2. Set up the Python and Node.js environments, install dependencies, and execute the local `pytest` suite (`test_processor.py` and `test_cdk_stack.py`). **Deployments are strictly blocked if these tests fail.**
+3. If tests pass on `push`, the workflow authenticates with AWS using repository secrets and dynamically targets a stack:
    - Pushes to `main` deploy to the strict compliance `SixthStreetAssessment-Prod` stack.
    - Pushes to `dev` deploy to the relaxed compliance `SixthStreetAssessment-Dev` stack.
-4. **Post-Deploy Validation:** If the deployment targeted the `dev` branch, the pipeline runs a live integration test (`validate_post_deployment.py`) against the newly deployed cloud resources to ensure end-to-end functionality.
+4. **Post-Deployment Validation:** If the deployment targeted the `dev` branch, the pipeline runs a live integration test (`validate_post_deployment.py`) against the newly deployed cloud resources to ensure end-to-end functionality.
 
 ### Deployment Strategy (Dev to Prod)
 This repository follows an enterprise-grade multi-environment promotion strategy:
@@ -99,14 +100,13 @@ This repository follows an enterprise-grade multi-environment promotion strategy
 To fully enable the automated pipeline and secure your infrastructure, you must configure the following settings directly in the GitHub UI:
 
 **1. Configure AWS Secrets**
-The pipeline requires scoped AWS credentials to provision infrastructure. 
 1. Navigate to the repository's **Settings > Secrets and variables > Actions**.
 2. Click **New repository secret** and add 2 items:
    * `AWS_ACCESS_KEY_ID`: Your IAM user/role access key.
    * `AWS_SECRET_ACCESS_KEY`: Your IAM user/role secret key.
 
 **2. Enable Branch Protection**
-To prevent accidental, untested deployments to Production, enforce branch protection on your `main` branch:
+Enforce on the `main` branch to prevent immediate deployment to Production:
 1. Navigate to **Settings > Branches** and click **Add branch protection rule**.
 2. Set the **Branch name pattern** to `main`.
 3. Check **Require a pull request before merging** (this prevents direct terminal pushes).
@@ -143,6 +143,4 @@ To test the S3 bucket trigger and lambda function manually:
 
 **Expected future maintenance:**
 
-        Periodically update: PYTHON_VERSION in GitHub Actions, 
-        Lambda runtime and Powertools Layer ARN in cdk_stack.py,
-        Package versions (aws-cdk-lib) in requirements.txt and requirements-dev.txt.
+Periodically update PYTHON_VERSION in GitHub Actions, Lambda runtime and Powertools Layer ARN in cdk_stack.py, and package versions (aws-cdk-lib) in requirements.txt and requirements-dev.txt.
