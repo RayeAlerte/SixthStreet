@@ -3,7 +3,7 @@
 ## Architecture Overview
 ![Architecture Diagram](./architecture.svg)
 
-This repository contains an AWS CDK application written in Python that provisions an S3 Bucket and a serverless Lambda function. When a file is dropped into the S3 bucket, an event notification triggers the Lambda function, which fetches the file and parses its single-line contents.
+This repository contains an AWS CDK application written in Python that provisions an S3 Bucket and a serverless Lambda function. When a file is dropped into the S3 bucket, an event notification triggers the Lambda function, which fetches the file and parses its single-line contents. **This guide is primarily for Unix / macOS users.**
 
 ## Key Features & Security Posture
 * **Infrastructure as Code:** Fully modeled in AWS CDK (Python).
@@ -17,8 +17,8 @@ This repository contains an AWS CDK application written in Python that provision
     - Relaxed Compliance Policies (Development):
         - Delete Buckets and Log Groups after stack deletion (`RemovalPolicy.DESTROY` and `auto_delete_objects=True`)
         - Keep CloudWatch logs for 30 days
-* **Structured Logging**: Uses Lambda Powertools to support JSON formatted logging to "ProcessorLogGroup".
-* **Automated Cleanup:** Dev environment S3 bucket is configured to ensure the environments are cleanly spun down without orphaned resources.
+* **Structured Logging**: Uses Lambda Powertools to support logging JSON to "ProcessorLogGroup".
+* **Automated Cleanup:** Dev environment S3 bucket is configured to ensure it is removed without orphaned resources.
 
 ## Prerequisites
 * Python 3.14+
@@ -27,11 +27,11 @@ This repository contains an AWS CDK application written in Python that provision
     - Download the latest version from https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html.
     - Run configuration (`aws configure`)
         - Provide Access Key ID, Secret Key, Default Region (example: us-east-2), Default Output Format (example: json)
-* AWS CDK CLI installed - either as:
+* AWS CDK CLI installed and bootstrapped - either as:
     - NodeJS NPM Package (`npm install -g aws-cdk`)
     - Homebrew (macOS, includes NodeJS) (`brew install aws-cdk`)
     - After installing, bootstrap the environment using:
-        cdk bootstrap
+        `cdk bootstrap`
 * Requirements (Production):
     - Requirements.txt contains all prerequisite libraries to launch this AWS stack.
     - This includes: 
@@ -52,8 +52,7 @@ This project utilizes a three-step testing pipeline to validate application logi
 1. **Clone the repository and set up a virtual environment:**
 
         python3 -m venv .venv
-        # Unix: source .venv/bin/activate      
-        # Windows: .venv\Scripts\activate
+        source .venv/bin/activate      
 
 2. **Install dependencies:**
 
@@ -62,7 +61,7 @@ This project utilizes a three-step testing pipeline to validate application logi
         pip install -r requirements-dev.txt
 
 3. **Run the Testing Pipeline:**
-   * **Step 0 & 1 (Local Unit Tests):** Validates the Lambda parsing logic using `moto` to mock S3, and utilizes the CDK Assertions library to verify the generated CloudFormation template enforces strict security policies.
+   * **Step 1 (Local Unit Tests):** Validates the Lambda parsing logic using `moto` to mock S3, and utilizes the CDK Assertions library to verify the generated CloudFormation template enforces strict security policies.
 
             pytest tests/
 
