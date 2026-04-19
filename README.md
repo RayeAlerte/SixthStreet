@@ -75,7 +75,7 @@ This project utilizes a three-step testing pipeline to validate application logi
 
 ## CI/CD Deployment Workflow
 
-Automated deployments are handled via a GitHub Actions workflow defined in `.github/workflows/deploy.yml`. This pipeline enforces testing, dynamically routes deployments based on the active branch, and optimizes compute costs to protect your infrastructure.
+Automated deployments are handled via a GitHub Actions workflow defined in `.github/workflows/deploy.yml`. This pipeline enforces testing, routes deployments based on the active branch, and prevents incidental redeployment.
 
 ### Pipeline Process
 When code is pushed to the `main` or `dev` branches (or a Pull Request is opened), the workflow executes the following sequence:
@@ -88,7 +88,7 @@ When code is pushed to the `main` or `dev` branches (or a Pull Request is opened
 4. **Post-Deploy Validation:** If the deployment targeted the `dev` branch, the pipeline runs a live integration test (`validate_post_deployment.py`) against the newly deployed cloud resources to ensure end-to-end functionality.
 
 ### Deployment Strategy (Dev to Prod)
-This repository follows an enterprise-grade multi-environment promotion strategy:
+This repository follows a multi-environment promotion strategy:
 
 1. **Development (`dev` branch):** All new features, infrastructure changes, and standard bug fixes must be committed to the `dev` branch. Pushing to `dev` automatically updates the isolated Sandbox stack in AWS for testing.
 2. **Production Promotion (`main` branch):** Direct pushes to `main` should be restricted. To deploy to Production, open a **Pull Request** from `dev` to `main`. Once the automated tests pass and the PR is merged, the pipeline provisions the highly compliant `SixthStreetAssessment-Prod` stack.
@@ -98,15 +98,26 @@ This repository follows an enterprise-grade multi-environment promotion strategy
 
 To fully enable the automated pipeline and secure your infrastructure, you must configure the following settings directly in the GitHub UI:
 
+<<<<<<< Updated upstream
 **1. Configure AWS Secrets**
 The pipeline requires scoped AWS credentials to provision infrastructure. 
+=======
+**Configure AWS Secrets**
+>>>>>>> Stashed changes
 1. Navigate to the repository's **Settings > Secrets and variables > Actions**.
 2. Click **New repository secret** and add 2 items:
    * `AWS_ACCESS_KEY_ID`: Your IAM user/role access key.
    * `AWS_SECRET_ACCESS_KEY`: Your IAM user/role secret key.
 
+<<<<<<< Updated upstream
 **2. Enable Branch Protection**
 To prevent accidental, untested deployments to Production, enforce branch protection on your `main` branch:
+=======
+**Enable Branch Protection**
+
+Enforce on the `main` branch to prevent immediate deployment to Production:
+
+>>>>>>> Stashed changes
 1. Navigate to **Settings > Branches** and click **Add branch protection rule**.
 2. Set the **Branch name pattern** to `main`.
 3. Check **Require a pull request before merging** (this prevents direct terminal pushes).
