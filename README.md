@@ -1,36 +1,7 @@
 # Sixth Street Assessment: Cloud Infrastructure Engineer
 
 ## Architecture Overview
-<pre>
-flowchart LR
-    %% Define styles for business domains
-    classDef ingestion fill:#e1f5fe,stroke:#01579b,stroke-width:2px;
-    classDef compute fill:#fff3e0,stroke:#e65100,stroke-width:2px;
-    classDef compliance fill:#e8f5e9,stroke:#1b5e20,stroke-width:2px;
-    classDef cicd fill:#f3e5f5,stroke:#4a148c,stroke-width:2px,stroke-dasharray: 5 5;
-
-    subgraph CI/CD ["Automated Safeguards (GitHub Actions)"]
-        direction TB
-        Code[Source Code] --> Tests[Automated Testing]
-        Tests --> Deploy{Conditional Deploy}
-    end
-
-    subgraph Production ["Live Environment (AWS)"]
-        direction LR
-        Upload([Data Source]) -- "1. Upload via TLS" --> S3[(Secure Vault\nAmazon S3)]
-        S3 -- "2. Event Trigger" --> Lambda[Business Logic Engine\nAWS Lambda]
-        Lambda -- "3. Structured JSON" --> Logs>Compliance Ledger\nCloudWatch]
-    end
-
-    %% Connect CI/CD to Production
-    Deploy -. "Provisions & Updates" .-> Production
-
-    %% Apply styles
-    class S3 ingestion;
-    class Lambda compute;
-    class Logs compliance;
-    class CI/CD,Code,Tests,Deploy cicd;
-</pre>
+![Architecture Diagram](./architecture.svg)
 
 This repository contains an AWS CDK application written in Python that provisions an S3 Bucket and a serverless Lambda function. When a file is dropped into the S3 bucket, an event notification triggers the Lambda function, which fetches the file and parses its single-line contents.
 
