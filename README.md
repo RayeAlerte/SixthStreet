@@ -96,16 +96,14 @@ This repository follows a multi-environment promotion strategy:
 
 To fully enable the automated pipeline and secure your infrastructure, you must configure the following settings directly in the GitHub UI:
 
-<<<<<<< Updated upstream
-**1. Configure AWS Secrets**
+**Configure AWS Secrets**
 The pipeline requires scoped AWS credentials to provision infrastructure. 
 1. Navigate to the repository's **Settings > Secrets and variables > Actions**.
 2. Click **New repository secret** and add 2 items:
    * `AWS_ACCESS_KEY_ID`: Your IAM user/role access key.
    * `AWS_SECRET_ACCESS_KEY`: Your IAM user/role secret key.
 
-<<<<<<< Updated upstream
-**2. Enable Branch Protection**
+**Enable Branch Protection**
 To prevent accidental, untested deployments to Production, enforce branch protection on your `main` branch:
 1. Navigate to **Settings > Branches** and click **Add branch protection rule**.
 2. Set the **Branch name pattern** to `main`.
