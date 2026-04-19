@@ -30,6 +30,8 @@ This repository contains an AWS CDK application written in Python that provision
 * AWS CDK CLI installed - either as:
     - NodeJS NPM Package (`npm install -g aws-cdk`)
     - Homebrew (macOS, includes NodeJS) (`brew install aws-cdk`)
+    - After installing, bootstrap the environment using:
+        cdk bootstrap
 * Requirements (Production):
     - Requirements.txt contains all prerequisite libraries to launch this AWS stack.
     - This includes: 
@@ -59,12 +61,7 @@ This project utilizes a three-step testing pipeline to validate application logi
         pip install -r requirements.txt
         pip install -r requirements-dev.txt
 
-3. **Bootstrap the CDK environment:**
-        
-        Run once per account/region before your first deployment:
-        cdk bootstrap
-
-4. **Run the Testing Pipeline:**
+3. **Run the Testing Pipeline:**
    * **Step 0 & 1 (Local Unit Tests):** Validates the Lambda parsing logic using `moto` to mock S3, and utilizes the CDK Assertions library to verify the generated CloudFormation template enforces strict security policies.
 
             pytest tests/
