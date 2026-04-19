@@ -11,7 +11,7 @@ This repository contains an AWS CDK application written in Python that provision
 * **Universal S3 Bucket Policies:** Explicit bucket policies block all public access and enforce secure transport (SSL/TLS) for all operations.
 * **Dev + Prod Deployment Targets:** SixthStreetAssessment-Dev (relaxed compliance) and SixthStreetAssessment-Prod (strict compliance).
     - Strict Compliance Policies (Production):
-        - Enable Customer Managed Keys (SSE-KMS Encryption) for Auditing
+        - Enable AWS Managed KMS Keys (SSE-KMS) for Encryption Auditing
         - Retain Buckets and Log Groups after stack deletion
         - Keep CloudWatch logs indefinitely
     - Relaxed Compliance Policies (Development):
@@ -87,9 +87,9 @@ When code is pushed to the `main` or `dev` branches (or a Pull Request is opened
 ### Deployment Strategy (Dev to Prod)
 This repository follows a multi-environment promotion strategy:
 
-**Development (`dev` branch):** All new features, infrastructure changes, and standard bug fixes must be committed to the `dev` branch. Pushing to `dev` automatically updates the isolated Sandbox stack in AWS for testing.
+**Development (`dev` branch):** All new features, infrastructure changes, and standard bug fixes must be committed to the `dev` branch. Pushing to `dev` automatically updates the `SixthStreetAssessment-Dev` stack in AWS for testing. The new code is tested after deployment to confirm pushed code is functional.
 
-**Production Promotion (`main` branch):** Direct pushes to `main` should be restricted. To deploy to Production, open a **Pull Request** from `dev` to `main`. Once the automated tests pass and the PR is merged, the pipeline provisions the highly compliant `SixthStreetAssessment-Prod` stack.
+**Production Promotion (`main` branch):** Direct pushes to `main` should be restricted. To deploy to Production, open a **Pull Request** from `dev` to `main`. Once the automated tests pass and the PR is merged, the pipeline provisions the strict compliance `SixthStreetAssessment-Prod` stack.
 
 **Emergency Hotfixes:** For critical production bugs, create a temporary branch (e.g., `hotfix/issue-name`) directly off `main`. Open a PR against `main` for an immediate, tested deployment. Once deployed, merge `main` back into `dev` to keep environments synchronized.
 
