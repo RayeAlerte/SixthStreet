@@ -1,7 +1,7 @@
 # Sixth Street Assessment: Cloud Infrastructure Engineer
 
 ## Architecture Overview
-![Architecture Diagram](./architecture.png)
+![Architecture Diagram](./architecture.svg)
 
 This repository contains an AWS CDK application written in Python that provisions an S3 Bucket and a serverless Lambda function. When a file is dropped into the S3 bucket, an event notification triggers the Lambda function, which fetches the file and parses its single-line contents.
 
