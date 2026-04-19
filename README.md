@@ -61,7 +61,7 @@ This project utilizes a three-step testing pipeline to validate application logi
         pip install -r requirements-dev.txt
 
 3. **Run the Testing Pipeline:**
-   * **Step 0 & 1 (Local Unit Tests):** Validates the Lambda parsing logic using `moto` to mock S3, and utilizes the CDK Assertions library to verify the generated CloudFormation template enforces strict security policies.
+   * **Step 1 (Local Unit Tests):** Validates the Lambda parsing logic using `moto` to mock S3, and utilizes the CDK Assertions library to verify the generated CloudFormation template enforces strict security policies.
 
             pytest tests/
 
