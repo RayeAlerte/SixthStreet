@@ -11,7 +11,7 @@ This repository contains an AWS CDK application written in Python that provision
 * **Universal S3 Bucket Policies:** Explicit bucket policies block all public access and enforce secure transport (SSL/TLS) for all operations.
 * **Dev + Prod Deployment Targets:** SixthStreetAssessment-Dev (relaxed compliance) and SixthStreetAssessment-Prod (strict compliance).
     - Strict Compliance Policies (Production):
-        - Enable Customer Managed Keys (SSE-KMS Encryption) for Auditing
+        - Enable AWS Managed KMS Keys (SSE-KMS) for Encryption Auditing
         - Retain Buckets and Log Groups after stack deletion
         - Keep CloudWatch logs indefinitely
     - Relaxed Compliance Policies (Development):
